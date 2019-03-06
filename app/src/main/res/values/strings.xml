@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Estoque</string>
+    <string name="nome">Nome</string>
+    <string name="preco">Preço</string>
+    <string name="quantidade">Quantidade</string>
+    <string name="remove">Remove</string>
+</resources>
