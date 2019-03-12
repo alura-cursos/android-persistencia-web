@@ -96,6 +96,29 @@ public class ProdutoRepository {
                 .execute();
     }
 
+    public void edita(Produto produto,
+                      DadosCarregadosCallback<Produto> callback) {
+
+        Call<Produto> call = service.edita(produto.getId(), produto);
+        call.enqueue(new BaseCallback<>(new BaseCallback.RespostaCallback<Produto>() {
+            @Override
+            public void quandoSucesso(Produto resultado) {
+                new BaseAsyncTask<>(() -> {
+                    dao.atualiza(produto);
+                    return produto;
+                }, callback::quandoSucesso)
+                        .execute();
+            }
+
+            @Override
+            public void quandoFalha(String erro) {
+                callback.quandoFalha(erro);
+            }
+        }));
+
+
+    }
+
     public interface DadosCarregadosCallback <T> {
         void quandoSucesso(T resultado);
         void quandoFalha(String erro);
