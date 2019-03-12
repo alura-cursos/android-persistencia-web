@@ -5,6 +5,8 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.List;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import br.com.alura.estoque.R;
@@ -37,7 +39,19 @@ public class ListaProdutosActivity extends AppCompatActivity {
         dao = db.getProdutoDAO();
 
         repository = new ProdutoRepository(dao);
-        repository.buscaProdutos(adapter::atualiza);
+        repository.buscaProdutos(new ProdutoRepository.DadosCarregadosCallback<List<Produto>>() {
+            @Override
+            public void quandoSucesso(List<Produto> produtosNovos) {
+                adapter.atualiza(produtosNovos);
+            }
+
+            @Override
+            public void quandoFalha(String erro) {
+                Toast.makeText(ListaProdutosActivity.this,
+                        "Não foi possível carregar os produtos novos",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void configuraListaProdutos() {
