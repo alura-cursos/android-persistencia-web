@@ -5,22 +5,20 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.internal.EverythingIsNonNull;
 
-public class BaseCallback <T> implements Callback<T> {
+public class CallbackSemRetorno implements Callback<Void> {
 
-    private final RespostaCallback<T> callback;
+    private final RespostaCallback callback;
 
-    public BaseCallback(RespostaCallback<T> callback) {
+    public CallbackSemRetorno(RespostaCallback callback) {
         this.callback = callback;
     }
 
     @Override
     @EverythingIsNonNull
-    public void onResponse(Call<T> call, Response<T> response) {
+    public void onResponse(Call<Void> call,
+                           Response<Void> response) {
         if(response.isSuccessful()){
-            T resultado = response.body();
-            if(resultado != null){
-                callback.quandoSucesso(resultado);
-            }
+            callback.quandoSucesso();
         } else {
             callback.quandoFalha("Resposta não sucedida");
         }
@@ -28,12 +26,13 @@ public class BaseCallback <T> implements Callback<T> {
 
     @Override
     @EverythingIsNonNull
-    public void onFailure(Call<T> call, Throwable t) {
+    public void onFailure(Call<Void> call,
+                          Throwable t) {
         callback.quandoFalha("Falha de comunicação: " + t.getMessage());
     }
 
-    public interface RespostaCallback <T> {
-        void quandoSucesso(T resultado);
+    public interface RespostaCallback {
+        void quandoSucesso();
         void quandoFalha(String erro);
     }
 
