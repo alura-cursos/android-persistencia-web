@@ -1,8 +1,11 @@
 package br.com.alura.estoque.repository;
 
+import android.content.Context;
+
 import java.util.List;
 
 import br.com.alura.estoque.asynctask.BaseAsyncTask;
+import br.com.alura.estoque.database.EstoqueDatabase;
 import br.com.alura.estoque.database.dao.ProdutoDAO;
 import br.com.alura.estoque.model.Produto;
 import br.com.alura.estoque.retrofit.EstoqueRetrofit;
@@ -16,8 +19,9 @@ public class ProdutoRepository {
     private final ProdutoDAO dao;
     private final ProdutoService service;
 
-    public ProdutoRepository(ProdutoDAO dao) {
-        this.dao = dao;
+    public ProdutoRepository(Context context) {
+        EstoqueDatabase db = EstoqueDatabase.getInstance(context);
+        dao = db.getProdutoDAO();
         service = new EstoqueRetrofit().getProdutoService();
     }
 
@@ -47,8 +51,6 @@ public class ProdutoRepository {
                 callback.quandoFalha(erro);
             }
         }));
-
-
     }
 
     private void atualizaInterno(List<Produto> produtos,
@@ -93,9 +95,9 @@ public class ProdutoRepository {
 
     public void edita(Produto produto,
                       DadosCarregadosCallback<Produto> callback) {
-
         Call<Produto> call = service.edita(produto.getId(), produto);
-        call.enqueue(new CallbackComRetorno<>(new CallbackComRetorno.RespostaCallback<Produto>() {
+        call.enqueue(new CallbackComRetorno<>(
+                new CallbackComRetorno.RespostaCallback<Produto>() {
             @Override
             public void quandoSucesso(Produto resultado) {
                 new BaseAsyncTask<>(() -> {
@@ -110,8 +112,6 @@ public class ProdutoRepository {
                 callback.quandoFalha(erro);
             }
         }));
-
-
     }
 
     public void remove(Produto produto,
@@ -119,7 +119,8 @@ public class ProdutoRepository {
         removeNaApi(produto, callback);
     }
 
-    private void removeNaApi(Produto produto, DadosCarregadosCallback<Void> callback) {
+    private void removeNaApi(Produto produto,
+                             DadosCarregadosCallback<Void> callback) {
         Call<Void> call = service.remove(produto.getId());
         call.enqueue(new CallbackSemRetorno(
                 new CallbackSemRetorno.RespostaCallback() {
@@ -135,7 +136,8 @@ public class ProdutoRepository {
         }));
     }
 
-    private void removeInterno(Produto produto, DadosCarregadosCallback<Void> callback) {
+    private void removeInterno(Produto produto,
+                               DadosCarregadosCallback<Void> callback) {
         new BaseAsyncTask<>(() -> {
             dao.remove(produto);
             return null;
